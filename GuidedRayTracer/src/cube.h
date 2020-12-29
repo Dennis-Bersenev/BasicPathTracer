@@ -2,12 +2,15 @@
 #include "triangle.h"
 #include "hitable_list.h"
 
+
+//This whole class outta be cleaned up eventually!
 class cube : public hitable
 {
 public:
 	material* mat; //Not sure if neccessary tbh.
 
 	//Ideally read from file
+	//Renders canonical view volume!
 	vec3 vertices[8] = {
 		vec3(-1, -1, 1), vec3(-1, 1, 1), vec3(1, 1, 1), vec3(1, -1, 1),
 		vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, 1, -1), vec3(-1, -1, -1)
@@ -37,6 +40,8 @@ public:
 	cube(material* mat) : mat{ mat } {}
 
 	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
+	virtual bool bounding_box(aabb& box) const override;
+
 
 	inline void build_cube(hitable ** triangles) const
 	{
@@ -110,4 +115,9 @@ bool cube::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
 	build_cube(triangles);
 	hitable* faces = new hitable_list(triangles, 12);
 	return faces->hit(r, t_min, t_max, rec);
+}
+//TODO
+bool cube::bounding_box(aabb& box) const
+{
+	return false;
 }

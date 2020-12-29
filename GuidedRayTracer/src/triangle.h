@@ -18,6 +18,16 @@ public:
 
     virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
 
+	virtual bool bounding_box(aabb& box) const;
+
+
+	/**
+	* Determines if ray intersects the plane defined by the three vertices of this triangle.
+	* @param r - the incident ray.
+	* @param t_min/t_max - used to define valid nearest intersections.
+	* @param t - stores resultant parameter in case of valid intersection.
+	* @return true if the intersection is valid (hits the plane and closer than previous intersections).
+	*/
 	inline bool in_plane(const ray& r, float t_min, float t_max, float * t) const
 	{
 		float num, denom, t_temp;
@@ -36,6 +46,11 @@ public:
 		return true;
 	}
     
+	/**
+	* Determines if ray intersects the triangle defined by this class, using properties of Barycentric coordinates.
+	* @param I - point of intersection
+	* @return true if the intersection is valid (hits the plane and closer than previous intersections).
+	*/
 	inline bool in_triangle(const vec3& I) const
 	{
 		float area, alpha, beta, gamma, eps, sum;
@@ -72,5 +87,11 @@ bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) cons
 		}
 	}
 	
+	return false;
+}
+
+//TODO
+bool triangle::bounding_box(aabb& box) const
+{
 	return false;
 }

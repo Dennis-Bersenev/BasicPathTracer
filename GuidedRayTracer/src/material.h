@@ -92,7 +92,7 @@ public:
     * @param scattered - holds the ray that will be scattered from the point of intersection (generic term for reflected/transmitted)
     * @return true if the incident ray is scattered, false if it is otherwise absorbed.
     */
-	virtual bool scatter(const ray& r, const hit_record& rec, vec3& attenuation, ray& scattered, hitable* world, const vec3& l) const = 0;
+	virtual bool scatter(const ray& r, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
 
 };
 
@@ -103,12 +103,10 @@ public:
     //Constructs a diffuse material with specified albedo (measure of degree of diffuse reflection, 0 = fully absorbed, 1 = fully reflected)
     lambertian(const vec3& a) : albedo{ a } {}
 
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered, hitable* world, const vec3& l) const {
+    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
         vec3 target = rec.p + rec.normal + random_point();
-        vec3 n = unit_vector(rec.normal);
+        attenuation = albedo;
         scattered = ray(rec.p, target - rec.p);
-        float kd = dot(l, n); // kd needs to be [0, 1], so both vecs needa be normalized!
-        attenuation = (under_shadow(rec, world, l)) ? SHADOW_COLOUR * albedo : kd * albedo;
         return true;
     }
     vec3 albedo;
@@ -127,10 +125,10 @@ public:
         fuzz = (f < 1) ? f : 1;
     }
 
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered, hitable* world, const vec3& l) const {
+    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
         vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
+        attenuation = albedo;
         scattered = ray(rec.p, reflected + fuzz * random_point());
-        attenuation = (under_shadow(rec, world, l)) ? SHADOW_COLOUR * albedo : albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
     vec3 albedo;
@@ -141,11 +139,11 @@ class dielectric : public material {
 public:
     dielectric(float ri) : ref_idx{ ri } {}
 
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered, hitable* world, const vec3& l) const {
+    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
         vec3 outward_normal;
         vec3 reflected = reflect(r_in.direction(), rec.normal);
         float ni_over_nt;
-        //
+        attenuation = vec3(1.0, 1.0, 1.0);
         vec3 refracted;
         float reflect_prob;
         float cosine, theta;
@@ -168,53 +166,13 @@ public:
         if (random_double() < reflect_prob)
         {
             scattered = ray(rec.p, reflected);
-            attenuation = vec3(1.0, 1.0, 1.0);
         }
         else
         {
-            attenuation = (under_shadow(rec, world, l))? SHADOW_COLOUR * vec3(1.0, 1.0, 1.0): vec3(1.0, 1.0, 1.0);
             scattered = ray(rec.p, refracted);
         }
         return true;
     }
 
     float ref_idx;
-};
-
-class blinn : public material
-{
-public:
-    blinn(const vec3& a, float shininessVal, float f) : albedo{ a }, shininessVal{ shininessVal } 
-    {
-        fuzz = (f < 1) ? f : 1;
-    }
-
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered, hitable* world, const vec3& l) const
-    {
-        //update direction first, same as glossy reflection
-        vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-        scattered = ray(rec.p, reflected + fuzz * random_point());
-        
-        vec3 n = unit_vector(rec.normal);
-        float kd = dot(l, n); // kd needs to be [0, 1], so both vecs needa be normalized!
-        if (under_shadow(rec, world, l))
-        {
-            attenuation = SHADOW_COLOUR * albedo;
-            return (dot(scattered.direction(), rec.normal) > 0);
-        }
-        vec3 diffuse = kd * albedo;
-
-        vec3 v = -unit_vector(r_in.direction());					//view vector
-        vec3 h = (v + l) / ((v + l).length());					//heuristic vector
-
-        float spec = pow(dot(h, n), shininessVal);
-
-        vec3 specularColour = spec * vec3(1.0, 1.0, 1.0);
-        attenuation = diffuse + specularColour; 
-
-        return (dot(scattered.direction(), rec.normal) > 0);
-    }
-    float fuzz;
-    float shininessVal;
-    vec3 albedo;
 };

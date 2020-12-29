@@ -10,12 +10,13 @@ public:
 
     sphere() {}
     sphere(vec3 cen, float r, material* m) : center{ cen }, radius{ r }, mat{ m } {};
-    virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
-    
+    virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const override;
+    virtual bool bounding_box(aabb& box) const override;
 };
 
 
-bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
+bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
+{
     vec3 oc = r.origin() - center;
     float a = dot(r.direction(), r.direction());
     float b = dot(oc, r.direction());
@@ -40,4 +41,11 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
         }
     }
     return false;
+}
+
+bool sphere::bounding_box(aabb& box) const
+{
+    box = aabb(center - vec3(radius, radius, radius),
+               center + vec3(radius, radius, radius));
+    return true;
 }

@@ -13,16 +13,38 @@ vec3 random_in_unit_disk() {
 
 class camera {
 public:
-    camera(vec3 lookfrom, vec3 lookat, vec3 vup, float vfov, float aspect, float aperture, float focus_dist) {
+    //Verbose used for testing purposes to see calculated camera basis
+    camera(vec3 lookfrom, vec3 lookat, vec3 vup, float vfov, float aspect, float aperture, float focus_dist, bool verbose) {
         // vfov is top to bottom in degrees
+        //IMO make these all unit vecs for rendering!
+        w = unit_vector(lookfrom - lookat);
+        u = cross(vup, w);
+        v = cross(w, u);
+        if (verbose)
+        {
+            //Print the basis vectors
+            std::cout << "w: " << w << std::endl << "u: " << u << std::endl << "v: " << v << std::endl;
+            
+            printf("----------------------------------------------\n");
+            //print vcs to pump into matlab
+            printf("[");
+            for (int i = 0; i < 3; i++)
+            {
+                printf("%f %f %f %f;", u[i], v[i], w[i], lookfrom[i]);
+            }
+            printf("0 0 0 1");
+            printf("]\n");
+        }
+        //Qs done, now calcs proper
+        u.make_unit_vector();
+        v = unit_vector(cross(w, u));
+        
         lens_radius = aperture / 2;
         float theta = vfov * M_PI / 180;
         float half_height = tan(theta / 2);
         float half_width = aspect * half_height;
         origin = lookfrom;
-        w = unit_vector(lookfrom - lookat);
-        u = unit_vector(cross(vup, w));
-        v = cross(w, u);
+        
         lower_left_corner = origin - half_width * focus_dist * u - half_height * focus_dist * v - focus_dist * w;
         horizontal = 2 * half_width * focus_dist * u;
         vertical = 2 * half_height * focus_dist * v;

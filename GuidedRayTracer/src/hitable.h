@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ray.h"
+#include "aabb.h"
 
 class material;
 
@@ -28,4 +29,11 @@ public:
     * @return true if this object intersects the ray 
     */
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const = 0;
+
+    /**
+    * Encloses the object within an axis-aligned bounding box.
+    * @param box - the box to enclose this object.
+    * @return true if the object was enclosed (not all geometry can be bound, eg. infinite plane).
+    */
+    virtual bool bounding_box(aabb& box) const = 0;
 };

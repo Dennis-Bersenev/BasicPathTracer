@@ -4,10 +4,11 @@
 class ray
 {
 private:
-    vec3 r0;
     vec3 rd;
 
 public:
+    vec3 r0;
+    
     ray() {}
     ray(const vec3& r0, const vec3& rd) : r0 { r0 }, rd{ rd } {}
 
