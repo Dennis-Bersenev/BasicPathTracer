@@ -65,8 +65,8 @@ void render()
     hitable* world = new hitable_list(objects, num_objects);
 
     //Standard render setup
-    int nx = 1920;
-    int ny = 1080;
+    int nx = 200;
+    int ny = 100;
     int ns = 20;
 
     //Cam setup
