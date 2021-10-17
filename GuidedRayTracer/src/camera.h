@@ -1,64 +1,32 @@
 #pragma once
-
 #include "ray.h"
-#include "random.h"
-
-vec3 random_in_unit_disk() {
-    vec3 p;
-    do {
-        p = 2.0 * vec3(random_double(), random_double(), 0) - vec3(1, 1, 0);
-    } while (dot(p, p) >= 1.0);
-    return p;
-}
 
 class camera {
 public:
-    //Verbose used for testing purposes to see calculated camera basis
-    camera(vec3 lookfrom, vec3 lookat, vec3 vup, float vfov, float aspect, float aperture, float focus_dist, bool verbose) {
-        // vfov is top to bottom in degrees
-        //IMO make these all unit vecs for rendering!
-        w = unit_vector(lookfrom - lookat);
-        u = cross(vup, w);
-        v = cross(w, u);
-        if (verbose)
-        {
-            //Print the basis vectors
-            std::cout << "w: " << w << std::endl << "u: " << u << std::endl << "v: " << v << std::endl;
-            
-            printf("----------------------------------------------\n");
-            //print vcs to pump into matlab
-            printf("[");
-            for (int i = 0; i < 3; i++)
-            {
-                printf("%f %f %f %f;", u[i], v[i], w[i], lookfrom[i]);
-            }
-            printf("0 0 0 1");
-            printf("]\n");
-        }
-        //Qs done, now calcs proper
-        u.make_unit_vector();
-        v = unit_vector(cross(w, u));
-        
-        lens_radius = aperture / 2;
-        float theta = vfov * M_PI / 180;
-        float half_height = tan(theta / 2);
-        float half_width = aspect * half_height;
-        origin = lookfrom;
-        
-        lower_left_corner = origin - half_width * focus_dist * u - half_height * focus_dist * v - focus_dist * w;
-        horizontal = 2 * half_width * focus_dist * u;
-        vertical = 2 * half_height * focus_dist * v;
-    }
-    ray get_ray(float s, float t) {
-        vec3 rd = lens_radius * random_in_unit_disk();
-        vec3 offset = u * rd.x() + v * rd.y();
-        return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset);
-    }
 
     vec3 origin;
     vec3 lower_left_corner;
     vec3 horizontal;
     vec3 vertical;
     vec3 u, v, w;
-    float lens_radius;
+
+    camera(vec3 lookfrom, vec3 lookat, vec3 vup, double vfov, double aspect) {
+        w = unit_vector(lookfrom - lookat);
+        u = unit_vector(cross(vup, w));
+        v = unit_vector(cross(w, u));
+
+        double theta = vfov * M_PI / 180;
+        double height = tan(theta);
+        double width = aspect * height;
+        origin = lookfrom;
+
+        lower_left_corner = origin - (width / 2) * u - (height / 2) * v - w;
+        horizontal = width * u;
+        vertical = height * v;
+    }
+
+    inline ray get_ray(double s, double t) {
+        return ray(origin, lower_left_corner + s * horizontal + t * vertical - origin);
+    }
+
 };

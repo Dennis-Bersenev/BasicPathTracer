@@ -7,7 +7,7 @@
 class cube : public hitable
 {
 public:
-	material* mat; //Not sure if neccessary tbh.
+	material mat; //Not sure if neccessary tbh.
 
 	//Ideally read from file
 	//Renders canonical view volume!
@@ -37,9 +37,9 @@ public:
 
 	};
 
-	cube(material* mat) : mat{ mat } {}
+	cube(material mat) : mat{ mat } {}
 
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
+	virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec, material& closest_mat) const;
 	virtual bool bounding_box(aabb& box) const override;
 
 
@@ -57,9 +57,9 @@ public:
 	}
 
 	//Take angle in degrees and transform to rads 
-	inline void rotate_cube_x(float theta)
+	inline void rotate_cube_x(double theta)
 	{
-		float c, s;
+		double c, s;
 		c = cos((theta / 180) * M_PI);
 		s = sin((theta / 180) * M_PI);
 		vec3 col1, col2, col3;
@@ -74,9 +74,9 @@ public:
 		}
 	}
 
-	inline void rotate_cube_y(float theta)
+	inline void rotate_cube_y(double theta)
 	{
-		float c, s;
+		double c, s;
 		c = cos((theta / 180) * M_PI);
 		s = sin((theta / 180) * M_PI);
 		vec3 col1, col2, col3;
@@ -91,9 +91,9 @@ public:
 		}
 	}
 
-	inline void rotate_cube_z(float theta)
+	inline void rotate_cube_z(double theta)
 	{
-		float c, s;
+		double c, s;
 		c = cos((theta / 180) * M_PI);
 		s = sin((theta / 180) * M_PI);
 		vec3 col1, col2, col3;
@@ -109,12 +109,14 @@ public:
 	}
 };
 
-bool cube::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool cube::hit(const ray& r, double t_min, double t_max, hit_record& rec, material& closest_mat) const
 {
 	hitable* triangles[12];
 	build_cube(triangles);
 	hitable* faces = new hitable_list(triangles, 12);
-	return faces->hit(r, t_min, t_max, rec);
+	bool res = faces->hit(r, t_min, t_max, rec, closest_mat);
+	delete[] faces;
+	return res;
 }
 //TODO
 bool cube::bounding_box(aabb& box) const

@@ -5,30 +5,31 @@ class sphere : public hitable {
 public:
 
     vec3 center;
-    float radius;
-    material* mat;
+    double radius;
+    material mat;
 
     sphere() {}
-    sphere(vec3 cen, float r, material* m) : center{ cen }, radius{ r }, mat{ m } {};
-    virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const override;
+    sphere(vec3 cen, double r, material m) : center{ cen }, radius{ r }, mat{ m } {};
+
+    virtual bool hit(const ray& r, double tmin, double tmax, hit_record& rec, material& closest_mat) const override;
     virtual bool bounding_box(aabb& box) const override;
 };
 
 
-bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
+bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec, material& closest_mat) const
 {
     vec3 oc = r.origin() - center;
-    float a = dot(r.direction(), r.direction());
-    float b = dot(oc, r.direction());
-    float c = dot(oc, oc) - radius * radius;
-    float discriminant = b * b - a * c;
+    double a = dot(r.direction(), r.direction());
+    double b = dot(oc, r.direction());
+    double c = dot(oc, oc) - radius * radius;
+    double discriminant = b * b - a * c;
     if (discriminant > 0) {
-        float temp = (-b - sqrt(discriminant)) / a;
+        double temp = (-b - sqrt(discriminant)) / a;
         if (temp < t_max && temp > t_min) {
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
             rec.normal = (rec.p - center) / radius;
-            rec.mat = mat;
+            closest_mat = mat;
             return true;
         }
         temp = (-b + sqrt(discriminant)) / a;
@@ -36,7 +37,7 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
             rec.normal = (rec.p - center) / radius;
-            rec.mat = mat;
+            closest_mat = mat;
             return true;
         }
     }

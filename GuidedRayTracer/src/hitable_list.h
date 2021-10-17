@@ -8,7 +8,14 @@ public:
     
     hitable_list() {}
     hitable_list(hitable** l, int n) { list = l; list_size = n; }
-    virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const override;
+    
+    virtual ~hitable_list() override
+    {
+        for (int i = 0; i < list_size; i++)
+            delete list[i];
+    }
+
+    virtual bool hit(const ray& r, double tmin, double tmax, hit_record& rec, material& closest_mat) const override;
     virtual bool bounding_box(aabb& box) const override;
 
 };
@@ -16,12 +23,13 @@ public:
 /**
 * Finds nearest object the ray intersects, returns false if nothing is intersected.
 */
-bool hitable_list::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
+bool hitable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec, material& closest_mat) const {
     hit_record temp_rec;
     bool hit_anything = false;
     double closest_so_far = t_max;
+
     for (int i = 0; i < list_size; i++) {
-        if (list[i]->hit(r, t_min, closest_so_far, temp_rec)) {
+        if (list[i]->hit(r, t_min, closest_so_far, temp_rec, closest_mat)) {
             hit_anything = true;
             closest_so_far = temp_rec.t;
             rec = temp_rec;

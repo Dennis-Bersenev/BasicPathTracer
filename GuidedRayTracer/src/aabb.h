@@ -9,20 +9,31 @@ struct box_intersections {
 //Axis-aligned Bounding Box 
 class aabb
 {
-public:
-	//Keep track of smallest/largest coords in each dimension defined with the max, eg start.x <= x <= end.x
+private:
+	// Keep track of smallest/largest coords in each dimension defined with the max, eg start.x <= x <= end.x 
+	// i.e. coords of opp corners
 	vec3 start, end;
+public:
 	
 	aabb() {}
 	aabb(const vec3& a, const vec3& b) : start{ a }, end{ b } {}
 
-	inline bool hit(const ray& r, float t_min, float t_max, box_intersections& bi) const
+	/**
+	* Function responsible for handling intersections between a ray and an aabb in the scene.
+	* @param r - the ray intersecting this object.
+	* @param t_min - the minimum distance along the ray for which a hit is valid (to prevent self-intersections).
+	* @param t_max - the maximum distance along the ray for which a hit is valid (to prevent intersections further than closest_so_far
+					 from updating the hit_record, i.e. pass in t of nearest intersection in for t_max)
+	* @param rec - the hit_record for the ray's closest intersection point.
+	* @return true if this aabb intersects the ray
+	*/
+	inline bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			float inv_denom = 1.0f / r.direction()[i];
-			float t0 = (start[i] - r.origin()[i]) * inv_denom;
-			float t1 = (end[i] - r.origin()[i]) * inv_denom;
+			double inv_denom = 1.0f / r.direction()[i];
+			double t0 = (start[i] - r.origin()[i]) * inv_denom;
+			double t1 = (end[i] - r.origin()[i]) * inv_denom;
 
 			if (inv_denom < 0.0f)
 				std::swap(t0, t1);
@@ -32,19 +43,6 @@ public:
 
 			if (t_min >= t_max)
 				return false;
-
-			//Messy code for computing intersection points, doesnt work properly.
-			if (i == 0) {
-				bi.x_intersections[0] = r.point_at_parameter(t0);
-				bi.x_intersections[1] = r.point_at_parameter(t1);
-			} else if(i == 1) {
-				bi.y_intersections[0] = r.point_at_parameter(t0);
-				bi.y_intersections[1] = r.point_at_parameter(t1);
-			}
-			else {
-				bi.z_intersections[0] = r.point_at_parameter(t0);
-				bi.z_intersections[1] = r.point_at_parameter(t1);
-			}
 		}
 		return true;
 	}

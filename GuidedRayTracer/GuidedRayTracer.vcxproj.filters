@@ -56,14 +56,14 @@
     <ClInclude Include="src\torus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\clipper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\mesh\Text.txt" />
   </ItemGroup>
 </Project>

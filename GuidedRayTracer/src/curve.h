@@ -13,8 +13,6 @@ enum class curve_type
 class curve
 {
 private:
-	//This'll introduce memory leaks that we'll address later: copy constructor, destructor, assignment_overload needed.
-	//Honestly it'd be quicker n easier to just use uninitialized control points over the dynamic array.
 	vec3 p0, p1, p2, p3;
 	curve_type ct;
 

@@ -144,7 +144,6 @@
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\camera.h" />
-    <ClInclude Include="src\clipper.h" />
     <ClInclude Include="src\cube.h" />
     <ClInclude Include="src\curve.h" />
     <ClInclude Include="src\hitable.h" />
@@ -157,6 +156,9 @@
     <ClInclude Include="src\torus.h" />
     <ClInclude Include="src\triangle.h" />
     <ClInclude Include="src\vec3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\mesh\Text.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

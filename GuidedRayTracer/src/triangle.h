@@ -5,18 +5,18 @@ class triangle : public hitable {
 public:
 
     vec3 a, b, c, n;
-	material* mat;
-	const float EPSILON = 0.001;
+	material mat;
+	const double EPSILON = 0.001;
 
     triangle() {}
 
-	triangle(const vec3& a, const vec3& b, const vec3& c, material* m) : a{ a }, b{ b }, c{ c }, mat{ m }
+	triangle(const vec3& a, const vec3& b, const vec3& c, material m) : a{ a }, b{ b }, c{ c }, mat{ m }
 	{
 		vec3 normal = cross((b - a), (c - a));
 		n = unit_vector(normal);
 	}
 
-    virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
+    virtual bool hit(const ray& r, double tmin, double tmax, hit_record& rec, material& closest_mat) const;
 
 	virtual bool bounding_box(aabb& box) const;
 
@@ -28,10 +28,10 @@ public:
 	* @param t - stores resultant parameter in case of valid intersection.
 	* @return true if the intersection is valid (hits the plane and closer than previous intersections).
 	*/
-	inline bool in_plane(const ray& r, float t_min, float t_max, float * t) const
+	inline bool in_plane(const ray& r, double t_min, double t_max, double * t) const
 	{
-		float num, denom, t_temp;
-		float eps = 0.0001;
+		double num, denom, t_temp;
+		double eps = 0.0001;
 		denom = dot(n, r.direction());
 		if (-eps < denom && denom < eps)
 			return false;
@@ -53,7 +53,7 @@ public:
 	*/
 	inline bool in_triangle(const vec3& I) const
 	{
-		float area, alpha, beta, gamma, eps, sum;
+		double area, alpha, beta, gamma, eps, sum;
 		eps = 0.0001;
 
 		area = 0.5f * (cross((b - a), (c - a))).length();
@@ -65,15 +65,15 @@ public:
 			return false;
 
 		sum = alpha + beta + gamma;
-		return (1.0f - eps < sum&& sum < 1.0f + eps);
+		return (1.0f - eps < sum && sum < 1.0f + eps);
 	}
 };
 
 
-bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool triangle::hit(const ray& r, double t_min, double t_max, hit_record& rec, material& closest_mat) const
 {
 	
-	float t_temp;
+	double t_temp;
 	if (in_plane(r, t_min, t_max, &t_temp))
 	{
 		vec3 I = r.point_at_parameter(t_temp);
@@ -82,7 +82,7 @@ bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) cons
 			rec.t = t_temp;
 			rec.p = I;
 			rec.normal = n;
-			rec.mat = mat;
+			closest_mat = mat;
 			return true;
 		}
 	}
@@ -90,7 +90,7 @@ bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) cons
 	return false;
 }
 
-//TODO
+
 bool triangle::bounding_box(aabb& box) const
 {
 	return false;

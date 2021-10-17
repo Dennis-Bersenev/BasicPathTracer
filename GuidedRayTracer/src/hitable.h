@@ -1,24 +1,10 @@
 #pragma once
 
-#include "ray.h"
 #include "aabb.h"
-
-class material;
-
-struct hit_record
-{
-    //t parameter along the ray of the most recent intersection (i.e. time traveled by ray to reach this object)
-    float t;
-    //Hit point
-    vec3 p;
-    //Normal to surface at point of intersection
-    vec3 normal;
-    //Material type of object of closest intersection.
-    material* mat;
-};
-
+#include "material.h"
 class hitable {
 public:
+
     /**
     * Function responsible for handling intersections between a ray and objects in the scene.
     * @param r - the ray intersecting this object.
@@ -28,7 +14,7 @@ public:
     * @param rec - the hit_record for the ray's closest intersection point.
     * @return true if this object intersects the ray 
     */
-    virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const = 0;
+    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec, material& closest_mat) const = 0;
 
     /**
     * Encloses the object within an axis-aligned bounding box.
@@ -36,4 +22,6 @@ public:
     * @return true if the object was enclosed (not all geometry can be bound, eg. infinite plane).
     */
     virtual bool bounding_box(aabb& box) const = 0;
+
+    virtual ~hitable() {}
 };
