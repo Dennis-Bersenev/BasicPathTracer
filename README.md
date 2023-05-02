@@ -1,6 +1,6 @@
 A basic path tracer implemented using C++, acknowledgments to Peter Shirley for providing the educational resources used for the project.
 
-A render of torus geometry using Sphere Marching algorithm.
+A render of torus geometry using Sphere Tracing algorithm.
 ![](../../blob/master/GuidedRayTracer/out/test_torus_new.png)
 
 A render of cube geometry using 12 stitched together triangles with Delaunay triangulation for hit detection.
